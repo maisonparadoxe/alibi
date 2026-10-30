@@ -1004,6 +1004,31 @@ window.addEventListener('error', function (e) {
 
   var TYPE_RANK = { together: 0, apart: 1, alone: 2, moves: 3, stay: 3, move: 4, notAt: 5, empty: 6, never: 7, visited: 8, at: 9 };
 
+  /* Fuites : un constat qui innocente d'emblée un suspect à l'heure du crime (ou désigne le meurtrier)
+     rend l'enquête triviale. On interdit les fuites franches et on plafonne le nombre de suspects
+     innocentés directement à S - 2, pour qu'il reste toujours au moins deux pistes. */
+  function leakOf(e, crime) {
+    if (e.t !== crime.t) return null;
+    switch (e.type) {
+      case 'together': return { bad: true, clr: [e.a, e.b] };
+      case 'at': return e.r === crime.room ? { bad: true, clr: [] } : { clr: [e.s] };
+      case 'notAt': return e.r === crime.room ? { clr: [e.s] } : null;
+    }
+    return null;
+  }
+  function leakOk(e, crime, cleared, S) {
+    var l = leakOf(e, crime);
+    if (!l) return true;
+    if (l.bad) return false;
+    var n = Object.keys(cleared).length;
+    l.clr.forEach(function (x) { if (!cleared[x]) n++; });
+    return n <= S - 2;
+  }
+  function leakMark(e, crime, cleared) {
+    var l = leakOf(e, crime);
+    if (l) l.clr.forEach(function (x) { cleared[x] = 1; });
+  }
+
   function generate(seed, levelKey, mode) {
     if (mode === 'liar' || mode === 'half') return generateLiar(seed, levelKey, mode);
     var L = LEVELS[levelKey] || LEVELS.moyen, S = L.S, T = L.T;
@@ -1017,11 +1042,12 @@ window.addEventListener('error', function (e) {
       var clues = [], unique = false;
       // sélection gloutonne : parmi les K prochains candidats (tirés selon les poids du niveau),
       // on garde celui qui réduit le plus les possibilités après propagation
-      var atCount = 0;
+      var atCount = 0, cleared = {};
       for (var step = 0; step < 70 && ordered.length; step++) {
         var win = [];
         for (var q = 0; q < ordered.length && win.length < (L.k || 8); q++) {
           if (ordered[q].type === 'at' && atCount >= (L.atMax == null ? 99 : L.atMax)) continue;
+          if (!leakOk(ordered[q], crime, cleared, S)) continue;
           win.push(q);
         }
         if (!win.length) break;
@@ -1032,6 +1058,7 @@ window.addEventListener('error', function (e) {
         }
         var picked = ordered.splice(bestI, 1)[0];
         if (picked.type === 'at') atCount++;
+        leakMark(picked, crime, cleared);
         clues.push(picked);
         if (clues.length < 5) continue;
         var res = solve({ S: S, T: T, clues: clues, crime: crime }, 2, 60000);
@@ -1196,10 +1223,12 @@ window.addEventListener('error', function (e) {
         return { it: it, key: -Math.log(u) / (L.w[groupOf(it)] / count[groupOf(it)]) };
       }).sort(function (x, y) { return x.key - y.key; }).map(function (x) { return x.it; });
 
-      var chosen = [], unique = false, factCount = 0, perSpeaker = {};
+      var chosen = [], unique = false, factCount = 0, perSpeaker = {}, cleared = {};
+      var eff = function (it) { return it.kind === 'fact' || it.truth ? it.c : neg(it.c); };
       var mk = function (items) { return { mode: mode, S: S, T: T, crime: crime, clues: items.map(function (i) { return i.c; }) }; };
       var take = function (idx) {
         var it = ordered.splice(idx, 1)[0];
+        leakMark(eff(it), crime, cleared);
         if (it.kind === 'fact') factCount++;
         else perSpeaker[it.c.by] = (perSpeaker[it.c.by] || 0) + 1;
         chosen.push(it);
@@ -1209,7 +1238,7 @@ window.addEventListener('error', function (e) {
         var iT = -1, iF = -1;
         for (var z = 0; z < ordered.length && (iT < 0 || iF < 0); z++) {
           var oz = ordered[z];
-          if (oz.kind === 'st' && oz.c.by === liar) {
+          if (oz.kind === 'st' && oz.c.by === liar && leakOk(eff(oz), crime, {}, S)) {
             if (oz.truth && iT < 0) iT = z; else if (!oz.truth && iF < 0) iF = z;
           }
         }
@@ -1222,6 +1251,7 @@ window.addEventListener('error', function (e) {
           var cand = ordered[q];
           if (cand.kind === 'fact' && factCount >= L.atMax) continue;
           if (cand.kind === 'st' && (perSpeaker[cand.c.by] || 0) >= maxSt) continue;
+          if (!leakOk(eff(cand), crime, cleared, S)) continue;
           win.push(q);
         }
         if (!win.length) break;
