@@ -250,7 +250,8 @@ window.addEventListener('error', function (e) {
         var cx = b.x + b.w / 2 + (k2 - (n - 1) / 2) * span;
         var sc = 0.5, sz = 64 * sc;
         var cls = 'lc-tok s' + sid + (o.culprit === sid ? ' culprit' : '');
-        h += '<g class="' + cls + '" transform="translate(' + (cx - sz / 2) + ' ' + (b.floor - sz) + ') scale(' + sc + ')">' + bust(o.names[sid]) + '</g>';
+        if (o.tok) h += '<g class="' + cls + '">' + o.tok(o.names[sid], cx, b.floor) + '</g>';
+        else h += '<g class="' + cls + '" transform="translate(' + (cx - sz / 2) + ' ' + (b.floor - sz) + ') scale(' + sc + ')">' + bust(o.names[sid]) + '</g>';
       });
     });
     return h + '</svg>';
