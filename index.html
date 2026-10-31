@@ -65,8 +65,8 @@ window.addEventListener('error', function (e) {
       <div class="art" id="art-story"></div>
       <div class="body">
         <p class="kick">Mode histoire</p>
-        <h2>L’Express de minuit</h2>
-        <p>Suivez Hortense Lafleur, détective à ses heures, d’affaire en affaire à bord d’un train de nuit.</p>
+        <h2>Le Hibou</h2>
+        <p>Suivez Hortense Lafleur, détective à ses heures, du train de nuit au casino de Monte-Carlo : 6 chapitres, 42 épisodes.</p>
         <div class="go"><span class="btn">Commencer</span><span class="done" id="story-done"></span></div>
       </div>
     </a>
@@ -80,7 +80,7 @@ window.addEventListener('error', function (e) {
       </div>
     </a>
   </div>
-  <p class="foot">Prototype : le mode histoire ne contient pour l’instant que le niveau 1.</p>
+  <p class="foot">Ta progression dans le mode histoire est enregistrée sur cet appareil.</p>
 </main>
 
 <script>
@@ -317,7 +317,7 @@ window.addEventListener('error', function (e) {
     '<div class="who" style="left:4px;width:104px">' + LC.avatar('Iris Delorme') + '</div>' +
     '<div class="who" style="left:36%;width:104px">' + LC.avatar('Gaston Pujol') + '</div>' +
     '<div class="who" style="right:4px;width:104px">' + LC.avatar('Hubert de Valcourt') + '</div>';
-  try { if (localStorage.getItem('alibi.histoire.n1') === 'ok') document.getElementById('story-done').textContent = 'Niveau 1 résolu ✓'; } catch (e) { /* stockage indisponible */ }
+  try { var pr = JSON.parse(localStorage.getItem('alibi.histoire') || '{}'), n = Object.keys(pr.solved || {}).length; if (n) document.getElementById('story-done').textContent = n + ' / 42 épisodes'; } catch (e) { /* stockage indisponible */ }
 })();
 </script>
 
