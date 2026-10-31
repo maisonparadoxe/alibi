@@ -9,6 +9,7 @@ window.ALIBI_IMAGES = {
   // 'comtesse-adelaide:choc':    'img/comtesse-adelaide-choc.png',
   // 'hubert-de-valcourt:neutre': 'img/hubert-de-valcourt-neutre.png',
   // 'hubert-de-valcourt:gene':   'img/hubert-de-valcourt-gene.png',
+  // 'hubert-de-valcourt:serieux': 'img/hubert-de-valcourt-serieux.png',
   // 'iris-delorme:neutre':       'img/iris-delorme-neutre.png',
   // 'iris-delorme:serieux':      'img/iris-delorme-serieux.png',
   // 'gaston-pujol:neutre':       'img/gaston-pujol-neutre.png',
