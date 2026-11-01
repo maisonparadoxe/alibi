@@ -81,6 +81,8 @@ h1 { margin: 0; font: 900 clamp(40px, 12vw, 60px)/0.95 var(--serif); letter-spac
 
 /* Épisode : couverture puis bande verticale */
 #intro { max-width: 640px; margin: 0 auto; }
+/* sur grand écran, une case de BD tient dans la hauteur de l'écran */
+@media (min-width: 700px) { #intro { max-width: max(360px, min(640px, 82vh)); } }
 .cover { text-align: center; padding: 6px 0 18px; }
 .kicker { margin: 0 0 6px; font: 600 12px var(--sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
 .lvl-title { margin: 0; font: italic 700 30px/1.15 var(--serif); text-wrap: balance; }
@@ -132,10 +134,14 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .layout { display: flex; flex-direction: column; gap: 16px; margin-top: 26px; }
 .col { display: contents; }
 #case { order: 1; } #suspects { order: 2; } #map-panel { order: 3; } #board-panel { order: 4; } #verdict { order: 5; } #clues-panel { order: 6; } #rules { order: 7; }
-@media (min-width: 900px) {
+@media (min-width: 700px) {
   .layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 20px; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   #case, #suspects, #map-panel, #board-panel, #verdict, #clues-panel, #rules { order: 0; }
+}
+@media (min-width: 700px) and (min-height: 520px) {
+  /* indices et plan restent à l'écran pendant qu'on remplit la grille */
+  .layout > .col:last-child { position: sticky; top: 10px; max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 4px 6px 10px; margin: -4px -6px 0; }
 }
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; min-width: 0; scroll-margin-top: 12px; }
 .panel-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
@@ -205,7 +211,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; min-height: 36px; }
-.switch input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+.switch { min-height: 44px; }
+.switch input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; }
 .hintline { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); }
 
 .opts { margin: -2px 0 6px; }
@@ -230,7 +237,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .soon { font-size: 13px; color: var(--ink-2); }
 
-.rules summary { cursor: pointer; font: 700 18px var(--serif); }
+.rules summary { cursor: pointer; font: 700 18px var(--serif); padding: 10px 0; min-height: 44px; }
 .rules ol { margin: 12px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 7px; color: var(--ink-2); font-size: 14.5px; }
 .rules ol b { color: var(--ink); }
 
@@ -321,11 +328,13 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .clue.proof .txt { color: var(--ink); }
 .board.dense .cell { font-size: 11.5px; }
 .skip { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-@media (min-width: 600px) { .fiches { grid-template-columns: repeat(var(--N), minmax(0, 1fr)); } }
 .fiches { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+@media (min-width: 480px) { .fiches { grid-template-columns: repeat(var(--N), minmax(0, 1fr)); } }
+@media (min-width: 700px) { .fiche .fn { font-size: 14.5px; } .fiche figcaption .sub { font-size: 10.5px; } }
 
 .who small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9.5px; }
 .board.dense .who b, .board[style*="--cols:4"] .who b { font-size: 13px; }
+.fiche figcaption .sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 </style>
 
@@ -340,7 +349,7 @@ window.addEventListener('error', function (e) {
 });
 </script>
 <noscript><p style="padding:16px">Alibi a besoin de JavaScript pour fonctionner.</p></noscript>
-<div style="max-width:1040px;margin:0 auto 10px"><a href="index.html" style="display:inline-block;font:600 14px 'Noto Sans',Nunito,system-ui,sans-serif;color:inherit;text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:4px 12px;opacity:.8">← Menu</a></div>
+<div style="max-width:1040px;margin:0 auto 10px"><a href="index.html" style="display:inline-block;font:600 14px 'Noto Sans',Nunito,system-ui,sans-serif;color:inherit;text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:9px 16px;min-height:42px;box-sizing:border-box;opacity:.8">← Menu</a></div>
 <div class="app" id="app">
   <header class="top">
     <h1>Alibi</h1>
@@ -3400,7 +3409,7 @@ window.AlibisPuzzles = {"1":{"n":1,"suspects":["Rémi Sansou","Aria Vibrato","Er
   /* ---------- Outils ---------- */
   function $(id) { return document.getElementById(id); }
   function g(s, t) { return state.grid[s * state.puz.T + t]; }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/ ([!?:;»])/g, '\u00a0$1').replace(/« /g, '«\u00a0'); }
   function isLiar(P) { return P.mode === 'liar' || P.mode === 'half'; }
   function inRoom(r) { return (ROOMS[r].on ? 'sur ' : 'dans ') + ROOMS[r].the; }
   function culpritName() { return SUSPECTS[state.puz.culprit].name; }

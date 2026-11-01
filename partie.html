@@ -172,10 +172,14 @@ button:focus-visible, summary:focus-visible, input:focus-visible + span { outlin
 #case { order: 1; } #suspects { order: 2; } #map-panel { order: 3; } #board-panel { order: 4; }
 #verdict { order: 5; } #clues-panel { order: 6; } #rules { order: 7; }
 #suspects[hidden] { display: none; }
-@media (min-width: 900px) {
+@media (min-width: 700px) {
   .layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 22px; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
   #case, #suspects, #map-panel, #board-panel, #verdict, #clues-panel, #rules { order: 0; }
+}
+@media (min-width: 700px) and (min-height: 520px) {
+  /* indices et plan restent à l'écran pendant qu'on remplit la grille */
+  .layout > .col:last-child { position: sticky; top: 10px; max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 4px 6px 10px; margin: -4px -6px 0; }
 }
 .panel { background: var(--panel); border-radius: 20px; box-shadow: var(--shadow); padding: 14px; min-width: 0; }
 @media (min-width: 480px) { .panel { padding: 18px; } :root { --tw: 60px; } }
@@ -280,7 +284,8 @@ button:focus-visible, summary:focus-visible, input:focus-visible + span { outlin
 .actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 2px dashed var(--rule); }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; cursor: pointer; min-height: 36px; }
-.switch input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+.switch { min-height: 44px; }
+.switch input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; }
 .loading { padding: 28px 0; text-align: center; font: 700 14px var(--sans); color: var(--ink-2); }
 /* la grille se pose sur une feuille au bord déchiré */
 #board-panel {
@@ -318,7 +323,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible + span { outlin
 .empty-note { margin: 0; padding: 10px 0 2px; color: var(--ink-2); font-size: 14px; }
 
 /* Règles */
-.rules summary { cursor: pointer; font: 800 19px/1.1 var(--sans); color: var(--ink); list-style-position: inside; padding: 4px 0; }
+.rules summary { cursor: pointer; font: 800 19px/1.1 var(--sans); color: var(--ink); list-style-position: inside; padding: 10px 0; min-height: 44px; }
 .rules ol { margin: 12px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; color: var(--ink-2); font-size: 15px; }
 .rules ol b { color: var(--ink); font-weight: 800; }
 
@@ -405,7 +410,7 @@ window.addEventListener('error', function (e) {
 });
 </script>
 <noscript><p style="padding:16px">Alibi a besoin de JavaScript pour fonctionner.</p></noscript>
-<div style="max-width:1040px;margin:0 auto 10px"><a href="index.html" style="display:inline-block;font:600 14px 'Noto Sans',Nunito,system-ui,sans-serif;color:inherit;text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:4px 12px;opacity:.8">← Menu</a></div>
+<div style="max-width:1040px;margin:0 auto 10px"><a href="index.html" style="display:inline-block;font:600 14px 'Noto Sans',Nunito,system-ui,sans-serif;color:inherit;text-decoration:none;border:1px solid currentColor;border-radius:999px;padding:9px 16px;min-height:42px;box-sizing:border-box;opacity:.8">← Menu</a></div>
 <div class="app" id="app">
   <header class="top">
     <div class="brand">
@@ -516,6 +521,9 @@ window.addEventListener('error', function (e) {
       '<pattern id="pf-diamond" class="pt-diamond" width="20" height="20" patternUnits="userSpaceOnUse"><rect class="pa-a" width="20" height="20"/><path class="pa-c" d="M10 2L18 10L10 18L2 10Z"/></pattern>' +
       '<pattern id="pf-grass" class="pt-grass" width="16" height="16" patternUnits="userSpaceOnUse"><rect class="pa-a" width="16" height="16"/><g class="pa-c"><circle cx="3" cy="4" r="1.3"/><circle cx="11" cy="9" r="1.3"/><circle cx="6" cy="13" r="1.1"/></g></pattern>' +
       '<pattern id="pf-steel" class="pt-steel" width="12" height="12" patternUnits="userSpaceOnUse"><rect class="pa-a" width="12" height="12"/><path class="pa-b" d="M0 6.5H12"/></pattern>' +
+      '<pattern id="pf-deck" class="pt-wood" width="30" height="8" patternUnits="userSpaceOnUse"><rect class="pa-a" width="30" height="8"/><path class="pa-b" d="M0 .5H30M18 0V8"/></pattern>' +
+      '<pattern id="pf-seats" class="pt-seats" width="12" height="10" patternUnits="userSpaceOnUse"><rect width="12" height="10" fill="#c0505a"/><rect x="2" y="2" width="8" height="6" rx="2" fill="#e07a82"/></pattern>' +
+      '<pattern id="pf-felt" class="pt-felt" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#3f8a5a"/><circle cx="8" cy="8" r="0.8" fill="#5aa874"/></pattern>' +
       '<clipPath id="tokclip"><circle cx="32" cy="32" r="32"/></clipPath>' +
       '</defs>';
   }
@@ -563,6 +571,16 @@ window.addEventListener('error', function (e) {
         break;
       case 'stool': s += '<circle class="fu" cx="' + x + '" cy="' + y + '" r="' + w / 2 + '"/>'; break;
       case 'vent': s += r('fu2', x, y, w, h, 2) + '<path class="fl" d="M' + (x + 3) + ' ' + (y + h / 2) + 'H' + (x + w - 3) + '"/>'; break;
+      case 'wheel':
+        s += '<circle class="fu2" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 2 + '"/><circle class="fw" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 5 + '"/>';
+        for (m = 0; m < 8; m++) s += '<path class="fl" d="M' + (x + w / 2) + ' ' + (y + h / 2) + 'L' + (x + w / 2 + Math.cos(m * 0.785) * w / 2) + ' ' + (y + h / 2 + Math.sin(m * 0.785) * w / 2) + '"/>';
+        break;
+      case 'piano': s += r('ftv', x, y, w, h, 6) + r('fw', x + 4, y + h - 7, w - 8, 4, 1); break;
+      case 'mirror': s += r('fw', x, y, w, h, 3) + r('win', x + 2, y + 2, w - 4, h - 4, 2); break;
+      case 'roulette':
+        s += '<circle class="fu" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 2 + '"/><circle class="ftv" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 3 + '"/><circle class="fw" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 9 + '"/>';
+        break;
+      case 'safe': s += r('ftv', x, y, w, h, 2) + '<circle class="fw" cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" r="' + w / 5 + '"/>'; break;
       case 'lift': s += r('fu2', x, y, w, h, 2) + '<path class="fl" d="M' + (x + w / 2) + ' ' + y + 'V' + (y + h) + '"/>'; break;
     }
     return s;
@@ -727,8 +745,10 @@ window.addEventListener('error', function (e) {
     });
     var crimeBit = 1 << puz.crime.room, crimeT = puz.crime.t;
 
+    var iters = 0;
     function propagate(dom) {
       var changed = true;
+      iters = 0;
       function set(i, m) {
         var nm = dom[i] & m;
         if (nm === 0) return false;
@@ -737,7 +757,7 @@ window.addEventListener('error', function (e) {
       }
       var s, t, k, p, v, i;
       while (changed) {
-        changed = false;
+        changed = false; iters++;
         for (s = 0; s < S; s++) {
           for (t = 0; t < T - 1; t++) {
             i = s * T + t;
@@ -797,7 +817,15 @@ window.addEventListener('error', function (e) {
       }
       return true;
     }
-    return { S: S, T: T, N: N, base: base, propagate: propagate };
+    return { S: S, T: T, N: N, base: base, propagate: propagate, iters: function () { return iters; } };
+  }
+
+  // Domaines après propagation (null si contradiction), et nombre de passes nécessaires
+  function propagated(puz) {
+    var cp = compile(puz), dom = cp.base.slice(), i;
+    for (i = 0; i < cp.N; i++) if (dom[i] === 0) return null;
+    if (!cp.propagate(dom)) return null;
+    return { dom: dom, iters: cp.iters() };
   }
 
   // Somme des tailles de domaine après propagation (plus petit = plus informatif), -1 si contradiction
@@ -1339,7 +1367,7 @@ window.addEventListener('error', function (e) {
   return {
     get ROOMS() { return ROOMS; }, get DOORS() { return DOORS; }, get ADJ() { return ADJ; },
     get STEP() { return STEP; }, get SUSPECTS() { return SUSPECTS; }, get SCENE() { return SCENE; },
-    SCENES: SCENES, setScene: setScene, LEVELS: LEVELS,
+    SCENES: SCENES, setScene: setScene, LEVELS: LEVELS, propagated: propagated, get POP() { return POP; }, get NR() { return NR; },
     timeLabel: timeLabel, solve: solve, evalClue: evalClue, badCells: badCells,
     clueText: clueText, generate: generate,
     statementText: statementText, solveLiar: solveLiar, neg: neg, LIAR_LEVELS: LIAR_LEVELS, HALF_LEVELS: HALF_LEVELS
